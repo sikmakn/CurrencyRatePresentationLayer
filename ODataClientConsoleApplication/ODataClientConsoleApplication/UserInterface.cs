@@ -8,10 +8,12 @@ namespace ODataClientConsoleApplication
     public class UserInterface
     {
         private readonly ServerODataHandler _serverHandler;
+        private readonly HistoryRateHandler _historyHandler;
 
-        public UserInterface(ServerODataHandler serverHandler)
+        public UserInterface(ServerODataHandler serverHandler, HistoryRateHandler historyHandler)
         {
             _serverHandler = serverHandler;
+            _historyHandler = historyHandler;
         }
 
         public void Start()
@@ -37,7 +39,17 @@ namespace ODataClientConsoleApplication
 
         private int GetStatictic()
         {
-            ////Controller
+            var currencyKey = GetCurrencyKey();
+            var currencyId = GetCurrencyIdByKey(currencyKey);
+            
+            Console.WriteLine("Statistic from 2016-16-09 to 2017-15-09");
+
+            var rates = _historyHandler.GetRateHistory(currencyId, new DateTime(2016, 09, 16), new DateTime(2017,09,15)).GetAwaiter().GetResult();
+
+            foreach (var rate in rates)
+            {
+                Console.WriteLine("Rate: " + rate.Cur_OfficialRate + " ||| Date: " + rate.Date.ToString("u").Split(' ')[0]);
+            }
             return -1;
         }
 
@@ -118,7 +130,6 @@ namespace ODataClientConsoleApplication
                                   "dollar - '1'\n" +
                                   "euro - '2'\n" +
                                   "russian ruble(by 100 rub) - '3' \n" +
-                                  "If you want view currency rate statistic press - '4' \n" +
                                   "For out press - 0");
                 key = Console.ReadLine();
             } while (!key.Equals("0") && !key.Equals("1") && !key.Equals("2") && !key.Equals("3") && !key.Equals("4"));
@@ -142,6 +153,24 @@ namespace ODataClientConsoleApplication
                     break;
             }
             return currency;
+        }
+
+        private static int GetCurrencyIdByKey(string key)
+        {
+            var currencyId = 0;
+            switch (key)
+            {
+                case "1":
+                    currencyId = 145;
+                    break;
+                case "2":
+                    currencyId = 292;
+                    break;
+                case "3":
+                    currencyId = 298;
+                    break;
+            }
+            return currencyId;
         }
 
         private static string GetCityByKey(string key)

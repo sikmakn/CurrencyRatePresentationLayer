@@ -11,7 +11,7 @@ namespace ODataClientConsoleApplication
 
             var serverHandler = new ServerODataHandler(container);
 
-            var userInterface = new UserInterface(serverHandler);
+            var userInterface = new UserInterface(serverHandler, new HistoryRateHandler(new Reader()));
             userInterface.Start();
         }
     }
